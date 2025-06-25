@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Backend API URL
     const API_URL =
-        window.location.hostname === 'http://localhost:3001/reports';
+        window.location.hostname === 'https://workbook-voxn.onrender.com/reports';
 
     // Fetch reports from backend
     const fetchReports = async () => {
