@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workbook Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://dev.metatagg.ca/workbook/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Workbook</h1>
+        <div class="top-layout-container">
+            <div class="report-form">
+                <h2>Add New Report</h2>
+                <form id="add-report-form" class="form-grid">
+                    <div class="form-row">
+                        <input type="date" id="date" required placeholder="DD-MM-YYYY">
+                        <select id="employee-name" required>
+                            <option value="" disabled selected>EMPLOYEE</option>
+                            <option value="Mahesh">MAHESH</option>
+                            <option value="Nayan">NAYAN</option>
+                            <option value="Umang">UMANG</option>
+                            <option value="Bhautik">BHAUTIK</option>
+                            <option value="Hiren">HIREN</option>
+                            <option value="Tarun">TARUN</option>
+                        </select>
+                        <input type="text" id="client-name" placeholder="CLIENT" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="project-name" placeholder="PROJECT" required>
+                        <input type="number" id="hours" placeholder="HOURS" step="0.01" required>
+                        <input type="text" id="notes" placeholder="NOTES">
+                    </div>
+                    <div class="form-row">
+                        <textarea id="task-description" placeholder="TASK DESCRIPTION" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <button type="submit">Add Report</button>
+                        <button type="button" id="cancel-edit" style="display:none;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <div class="controls">
+                <h2>Filters</h2>
+                <div class="filter-container">
+                    <select id="client-filter"></select>
+                    <select id="project-filter"></select>
+                    <select id="employee-filter"></select>
+                    <input type="date" id="start-date-filter">
+                    <input type="date" id="end-date-filter">
+                    <button id="filter-btn">Apply Filters</button>
+                </div>
+                <button id="export-btn">Export to Excel</button>
+            </div>
+        </div>
+        <div class="report-table">
+            <h2>Reports</h2>
+            <div class="table-actions">
+                <button id="delete-selected-btn" class="delete-btn">Delete Selected</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all-checkbox"></th>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Client</th>
+                        <th>Project</th>
+                        <th>Task Description</th>
+                        <th>Hours</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="report-body">
+                    <!-- Report rows will be inserted here by JavaScript -->
+                </tbody>
+                <tfoot id="report-footer">
+                    <!-- Total hours will be inserted here by JavaScript -->
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://dev.metatagg.ca/workbook/script.js"></script>
+</body>
+</html>
