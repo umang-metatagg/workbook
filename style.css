@@ -24,6 +24,11 @@ h1, h2 {
     letter-spacing: 1px;
 }
 
+h1 {
+    text-transform: uppercase;
+    text-align: left;
+}
+
 .controls {
     display: flex;
     justify-content: space-between;
@@ -166,6 +171,10 @@ h1, h2 {
     background-color: #f5f5f5;
 }
 
+.date-cell {
+    white-space: nowrap;
+}
+
 #report-footer td {
     font-weight: bold;
     text-align: right;
@@ -186,6 +195,11 @@ h1, h2 {
 
 .delete-btn {
     background-color: #d9534f;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
 }
 
 .table-actions {

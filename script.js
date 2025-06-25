@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let editId = null;
 
     // Backend API URL
-    const API_URL =
-        window.location.hostname === 'https://workbook-voxn.onrender.com/reports';
+    const API_URL = 'https://workbook-voxn.onrender.com/reports';
 
     // Fetch reports from backend
     const fetchReports = async () => {
@@ -31,19 +30,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Helper to sort reports by ID (descending)
+    function sortReportsDescending(reportsArr) {
+        return reportsArr.sort((a, b) => (b.id || 0) - (a.id || 0));
+    }
+
     // Load reports and initialize
     const initialize = async () => {
         reports = await fetchReports();
+        reports = sortReportsDescending(reports);
         filteredReports = [...reports];
         populateFilterDropdowns();
         applyFilters();
     };
 
-    // Helper to format date as DD-MM-YY
+    // Helper to format date as DD-MM-YYYY
     function formatDateDMY(dateStr) {
         if (!dateStr) return '';
         const [year, month, day] = dateStr.split('-');
-        return `${day}-${month}-${year.slice(2)}`;
+        return `${day}-${month}-${year}`;
     }
 
     const renderReports = () => {
@@ -62,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>
                     <input type="checkbox" class="report-checkbox" data-id="${report.id}">
                 </td>
-                <td>${formatDateDMY(report.date)}</td>
+                <td class="date-cell">${formatDateDMY(report.date)}</td>
                 <td>${report.employeeName}</td>
                 <td>${report.clientName}</td>
                 <td>${report.projectName}</td>
@@ -70,8 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${hoursWorked}</td>
                 <td>${report.notes}</td>
                 <td>
-                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                    <div class="action-buttons">
+                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </td>
             `;
             reportBody.appendChild(row);
@@ -177,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reports.push({ ...reportData, id: Date.now() });
         }
 
+        reports = sortReportsDescending(reports);
         await saveReports(reports);
         populateFilterDropdowns();
         applyFilters();
@@ -234,23 +242,129 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const exportToExcel = () => {
-        let totalHours = 0;
-        const dataToExport = filteredReports.map(report => {
-            const hoursWorked = parseFloat(report.hours || 0).toFixed(2);
-            totalHours += parseFloat(hoursWorked);
-            return {
+        // Sort and group reports by project
+        const sortedReports = [...filteredReports].sort((a, b) => a.projectName.localeCompare(b.projectName));
+        let dataToExport = [];
+        let currentProject = null;
+        let projectTotal = 0;
+        let grandTotal = 0;
+        let projectStartIndex = 2; // Excel rows are 1-indexed, header is row 1
+        const projectRows = [];
+
+        sortedReports.forEach((report, idx) => {
+            if (currentProject !== report.projectName) {
+                if (currentProject !== null) {
+                    // Push project total row
+                    dataToExport.push({
+                        'Date': '',
+                        'Project': '',
+                        'Task Description': 'Total Hours',
+                        'Hours': projectTotal.toFixed(2),
+                        'Notes': ''
+                    });
+                    projectRows.push({ row: dataToExport.length + 1, type: 'projectTotal' });
+                    // Add blank row after project total
+                    dataToExport.push({
+                        'Date': '',
+                        'Project': '',
+                        'Task Description': '',
+                        'Hours': '',
+                        'Notes': ''
+                    });
+                }
+                currentProject = report.projectName;
+                projectTotal = 0;
+                projectStartIndex = dataToExport.length + 2;
+            }
+            const hoursWorked = parseFloat(report.hours || 0);
+            projectTotal += hoursWorked;
+            grandTotal += hoursWorked;
+            dataToExport.push({
                 'Date': formatDateDMY(report.date),
-                'Employee': report.employeeName,
-                'Client': report.clientName,
                 'Project': report.projectName,
                 'Task Description': report.taskDescription,
-                'Hours': hoursWorked,
+                'Hours': hoursWorked.toFixed(2),
                 'Notes': report.notes
-            };
+            });
         });
+        // Last project total
+        if (currentProject !== null) {
+            dataToExport.push({
+                'Date': '',
+                'Project': '',
+                'Task Description': 'Total Hours',
+                'Hours': projectTotal.toFixed(2),
+                'Notes': ''
+            });
+            projectRows.push({ row: dataToExport.length + 1, type: 'projectTotal' });
+            // Add blank row after last project total
+            dataToExport.push({
+                'Date': '',
+                'Project': '',
+                'Task Description': '',
+                'Hours': '',
+                'Notes': ''
+            });
+        }
+        // Grand total
+        dataToExport.push({
+            'Date': '',
+            'Project': '',
+            'Task Description': 'Grand Total Hours',
+            'Hours': grandTotal.toFixed(2),
+            'Notes': ''
+        });
+        const grandTotalRow = dataToExport.length + 1;
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        XLSX.utils.sheet_add_aoa(ws, [['', '', '', '', '', 'Total Hours:', totalHours.toFixed(2)]], { origin: -1 });
+
+        // Add styles for headers
+        const headerStyle = { font: { bold: true }, fill: { fgColor: { rgb: "C6EFCE" } } }; // Light Green
+        const headers = ['A1', 'B1', 'C1', 'D1', 'E1'];
+        headers.forEach(cell => {
+            if (ws[cell]) ws[cell].s = headerStyle;
+        });
+
+        // Set column widths
+        ws['!cols'] = [
+            { wch: 12 }, // Date
+            { wch: 25 }, // Project
+            { wch: 60 }, // Task Description
+            { wch: 12 }, // Hours
+            { wch: 40 }  // Notes
+        ];
+
+        // Set row height to 15pt (≈20px) for all rows
+        ws['!rows'] = Array(dataToExport.length + 1).fill({ hpt: 15 });
+
+        // Vertically middle-align all cells
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                if (ws[cell_address]) {
+                    ws[cell_address].s = ws[cell_address].s || {};
+                    ws[cell_address].s.alignment = { ...ws[cell_address].s.alignment, vertical: 'center' };
+                }
+            }
+        }
+
+        // Style for project total and grand total rows
+        const totalStyle = { font: { bold: true }, fill: { fgColor: { rgb: "F0F0F0" } } }; // Light Grey
+        const grandTotalStyle = { font: { bold: true }, fill: { fgColor: { rgb: "FFF2CC" } } }; // Light Yellow
+
+        // Apply style to each project total row
+        projectRows.forEach(({ row }) => {
+            const labelCell = `C${row}`;
+            const valueCell = `D${row}`;
+            if (ws[labelCell]) ws[labelCell].s = totalStyle;
+            if (ws[valueCell]) ws[valueCell].s = totalStyle;
+        });
+        // Apply style to grand total row
+        const grandLabelCell = `C${grandTotalRow}`;
+        const grandValueCell = `D${grandTotalRow}`;
+        if (ws[grandLabelCell]) ws[grandLabelCell].s = grandTotalStyle;
+        if (ws[grandValueCell]) ws[grandValueCell].s = grandTotalStyle;
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Reports');
