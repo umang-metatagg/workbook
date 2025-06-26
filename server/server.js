@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'reports.json');
+const DATA_FILE = 'https://dev.metatagg.ca/workbook/server/data/reports.json';
 
 app.use(cors());
 app.use(express.json());
