@@ -319,53 +319,51 @@ app.get('/reports', protect, async (req, res) => {
         // Admins will have an empty matchQuery, so all reports will be considered for them.
 
         const reports = await Report.aggregate([
-            // Stage 1: Filter reports based on user role (admin sees all, employee sees their own)
-            {
-                $match: matchQuery
-            },
-            // Stage 2: Perform a left outer join with the 'clients' collection
-            {
-                $lookup: {
-                    from: 'clients', // Make sure 'clients' is the actual name of your collection
-                    localField: 'clientName', // Field from the 'reports' collection (the slug)
-                    foreignField: 'slug',     // Field from the 'clients' collection to match on
-                    as: 'clientDetails'       // Name of the new array field added to each report document
-                }
-            },
-            // Stage 3: Deconstruct the 'clientDetails' array
-            // Use preserveNullAndEmptyArrays: true to include reports even if no matching client is found
-            {
-                $unwind: {
-                    path: '$clientDetails',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            // Stage 4: Project (select) the fields you want in the final output
-            {
-                $project: {
-                    _id: 1,
-                    date: 1,
-                    employeeName: 1,
-                    // Use the label from clientDetails, or fall back to original clientName (slug) if no match.
-                    displayClientName: { $ifNull: ['$clientDetails.name', '$report.clientName'] },
-                    // If your Report schema has a 'clientName' field that stores the slug,
-                    // and you still want to include it for some reason (e.g., for editing), you can keep it:
-                    // clientName: 1, // Keep the original slug if needed
-
-                    projectName: 1,
-                    taskDescription: 1,
-                    hours: 1,
-                    notes: 1,
-                    employeeUsername: 1 // Keep this if used for other logic (e.g., in UI for edit/delete)
-                    // Include any other fields from your Report model you need on the frontend
-                }
-            },
-            // Stage 5: (Optional) Add any sorting if you want the reports ordered
-            {
-                $sort: { date: -1 } // Example: Sort by date descending
+        // Stage 1: Filter reports based on user role (admin sees all, employee sees their own)
+        {
+            $match: matchQuery
+        },
+        // Stage 2: Perform a left outer join with the 'clients' collection
+        {
+            $lookup: {
+                from: 'clients', // Make sure 'clients' is the actual name of your collection
+                localField: 'clientName', // Field from the 'reports' collection (the slug)
+                foreignField: 'slug',     // Field from the 'clients' collection to match on
+                as: 'clientDetails'       // Name of the new array field added to each report document
             }
-        ]);
+        },
+        // Stage 3: Deconstruct the 'clientDetails' array
+        // Use preserveNullAndEmptyArrays: true to include reports even if no matching client is found
+        {
+            $unwind: {
+                path: '$clientDetails',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        // Stage 4: Project (select) the fields you want in the final output
+        {
+            $project: {
+                _id: 1,
+                date: 1,
+                employeeName: 1,
+                // Use the 'name' (label) from clientDetails, or fall back to original clientName (slug)
+                displayClientName: { $ifNull: ['$clientDetails.name', '$clientName'] },
+                // Get the original clientName (slug) from the report document
+                clientName: '$clientName', // <--- CORRECTED: Use just '$clientName'
 
+                projectName: 1,
+                taskDescription: 1,
+                hours: 1,
+                notes: 1,
+                employeeUsername: 1
+                // Include any other fields from your Report model you need on the frontend
+            }
+        },
+        // Stage 5: (Optional) Add any sorting if you want the reports ordered
+        {
+            $sort: { date: -1 } // Example: Sort by date descending
+        }
+    ]);
         res.json(reports);
     } catch (error) {
         console.error('Error fetching reports with client labels:', error);
