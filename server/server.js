@@ -151,23 +151,28 @@ app.get('/api/auth/employees', protect, async (req, res) => {
 });
 
 app.put('/api/auth/users/:id', protect, authorize('admin'), async (req, res) => {
-    const { username, fullName, role } = req.body; // username will come, but we ignore it for updates
+    const { username, fullName, role, password } = req.body; // username will come, but we ignore it for updates
     try {
         const authUser = await AuthUser.findById(req.params.id);
         if (!authUser) {
             return res.status(404).json({ message: 'AuthUser not found' });
         }
 
-        // --- IMPORTANT CHANGE HERE ---
-        // DO NOT allow username to be updated after creation
-        // if (username !== undefined) authUser.username = username; // REMOVE OR COMMENT OUT THIS LINE
+        if (password) {
+            authUser.password = password; 
+        }
 
         if (fullName !== undefined) authUser.fullName = fullName;
         if (role !== undefined) authUser.role = role;
+
+        /*
         if (req.body.password) {
+            console.log('Hashing new password...'); // ADD THIS LINE
             const salt = await bcrypt.genSalt(10);
             authUser.password = await bcrypt.hash(req.body.password, salt);
+            console.log('Password hashed successfully.'); // ADD THIS LINE
         }
+        */
 
         await authUser.save();
         res.json({
