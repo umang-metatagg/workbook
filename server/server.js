@@ -383,12 +383,13 @@ app.post('/reports', protect, async (req, res) => {
         }
         // Get the client slug from the client name sent from frontend
         // Assuming frontend sends clientName as the actual name, we need to convert it to slug
+        /*
         const client = await Client.findOne({ name: reportData.clientName });
         if (!client) {
             return res.status(400).json({ message: 'Invalid client selected.' });
         }
         reportData.clientName = client.slug; // Store the client's slug in the report
-
+        */
         // If the user is an employee, ensure they are only submitting a report for themselves
         if (req.user.role === 'employee' && reportData.employeeUsername !== req.user.username) {
             return res.status(403).json({ message: 'Forbidden: Employees can only add reports for themselves.' });
@@ -420,10 +421,12 @@ app.put('/reports/:id', protect, async (req, res) => {
             projectName: req.body.projectName,
             taskDescription: req.body.taskDescription,
             hours: req.body.hours,
-            notes: req.body.notes
+            notes: req.body.notes,
+            clientName: req.body.clientName,
         };
 
         // If clientName is being updated, convert it to slug
+        /*
         if (req.body.clientName !== undefined) {
             const client = await Client.findOne({ name: req.body.clientName });
             if (!client) {
@@ -431,6 +434,7 @@ app.put('/reports/:id', protect, async (req, res) => {
             }
             updateFields.clientName = client.slug; // Store the client's slug
         }
+        */
 
         // Admins can also change employeeName and employeeUsername if needed (careful with this)
         if (req.user.role === 'admin') {
