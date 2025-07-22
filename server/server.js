@@ -344,7 +344,12 @@ app.get('/reports', protect, async (req, res) => {
         {
             $project: {
                 _id: 1,
-                date: 1,
+                date: {
+                    $dateToString: {
+                        format: "%d-%m-%Y",
+                        date: { $toDate: "$date" }  // Ensures it's treated as a Date object
+                    }
+                },
                 employeeName: 1,
                 // Use the 'name' (label) from clientDetails, or fall back to original clientName (slug)
                 displayClientName: { $ifNull: ['$clientDetails.name', '$clientName'] },
