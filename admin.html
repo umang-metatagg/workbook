@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Report Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <main class="container admin-panel"> 
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Workbook - Admin Panel</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span id="user-info" style="font-weight: bold; color: #555;"></span>
+            <button id="reports-page-btn" style="background: #0275d8; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Reports Page</button>
+            <button id="logout-btn" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Logout</button>
+        </div>
+    </div>
+
+    <section class="admin-section">
+            <h2>Manage Employees & Login Accounts</h2>
+            <div class="form-group"> <input type="text" id="new-auth-username" placeholder="Username" required>
+                <input type="password" id="new-auth-password" placeholder="Password (min 6 chars)" minlength="6">
+                <input type="text" id="new-auth-fullname" placeholder="Full Name" required>
+                <select id="new-auth-role">
+                    <option value="employee">Employee</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button id="create-auth-account-btn" class="btn btn-primary">Create Account</button>
+            </div>
+            <div id="auth-account-message" class="message success" style="display:none;"></div>
+            <div id="auth-account-error" class="message error" style="display:none;"></div>
+            <h4>Existing Accounts</h4>
+            <ul id="auth-user-list">
+                </ul>
+        </section>
+
+        <section class="admin-section">
+            <h2>Manage Clients</h2>
+            <div class="form-group"> <input type="text" id="new-client-name" placeholder="Client Name" required>
+                <input type="text" id="new-client-slug" placeholder="Client Slug (auto-generated)" pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens allowed.">
+                <button id="add-client-btn" class="btn btn-primary">Add Client</button>
+            </div>
+            <div id="client-message" class="message success" style="display:none;"></div>
+            <div id="client-error" class="message error" style="display:none;"></div>
+            <h4>Existing Clients</h4>
+            <ul id="client-list">
+                </ul>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -346,7 +346,7 @@ app.get('/reports', protect, async (req, res) => {
                 _id: 1,
                 date: {
                     $dateToString: {
-                        format: "%d-%m-%Y",
+                        format: "%m/%d/%Y", // US format: MM/DD/YYYY
                         date: { $toDate: "$date" }  // Ensures it's treated as a Date object
                     }
                 },
@@ -495,7 +495,7 @@ app.post('/reports/bulk-delete', protect, authorize('admin'), async (req, res) =
 // NEW API: Get projects for a specific client
 // GET /reports/projects-by-client
 app.get('/reports/projects-by-client', protect, async (req, res) => {
-    const { clientName } = req.query; // clientName here will be the display name from frontend dropdown
+    const { clientName } = req.query; // This is the slug
     if (!clientName) {
         return res.status(400).json({ message: 'Client name is required for filtering projects.' });
     }
@@ -505,10 +505,9 @@ app.get('/reports/projects-by-client', protect, async (req, res) => {
             return res.status(404).json({ message: 'Client not found.' });
         }
 
-        let query = { clientName: client.slug }; // Query by client slug
-        if (req.user.role === 'employee') {
-            query.employeeUsername = req.user.username;
-        }
+        // 🔁 Remove employeeUsername filter here
+        const query = { clientName: client.slug }; // Get all reports for this client
+
         const projects = await Report.distinct('projectName', query);
         res.json(projects);
     } catch (error) {
@@ -516,6 +515,7 @@ app.get('/reports/projects-by-client', protect, async (req, res) => {
         res.status(500).json({ message: 'Server error fetching projects.' });
     }
 });
+
 
 // NEW API: Get employees for a specific project (and client, if provided)
 app.get('/reports/employees-by-project', protect, async (req, res) => {

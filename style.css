@@ -1,410 +1,610 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* General Body and Container Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f4f4;
+    margin: 0;
+    padding: 0; /* Remove padding from body as header/footer will handle it */
     color: #333;
-    line-height: 1.6;
 }
 
 .container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
-    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto; /* Margin for top/bottom */
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
-    text-align: center;
     color: #333;
-    letter-spacing: 1px;
+    margin-bottom: 20px;
 }
 
-h1 {
-    text-transform: uppercase;
-    text-align: left;
+/* --- NEW HEADER STYLES --- */
+.app-header {
+    background-color: #007bff; /* A distinct blue for the header background */
+    color: white;
+    padding: 15px 20px; /* Top/bottom padding, and left/right matches container */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* A subtle shadow for depth */
 }
 
-.controls {
+.app-header .header-content {
+    max-width: 1200px; /* Match container width */
+    margin: 0 auto; /* Center the content */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Allow elements to wrap on smaller screens */
+    gap: 15px; /* Space between the title and navigation */
 }
 
-.filter-container, .bulk-actions {
+.app-header h1 {
+    margin: 0; /* Remove default h1 margin */
+    font-size: 1.8em; /* Slightly larger title */
+    font-weight: 600;
+    color: white; /* Ensure heading color is white */
+}
+
+.app-header nav {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 15px; /* Space between nav items like user info and buttons */
+    flex-wrap: wrap; /* Allow nav items to wrap */
 }
 
-.filter-container {
-    display: flex;
-    gap: 10px;
-}
-
-.filter-container input, .filter-container select {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-#filter-btn {
-    background: #5cb85c;
-    color: white;
-    border: 0;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#export-btn {
-    background: #333;
-    color: #fff;
-    border: 0;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.report-form {
-    background: #fff;
-    padding: 32px 28px 24px 28px;
-    margin-bottom: 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.04);
-}
-
-.report-form h2,
-.controls h2 {
-    font-size: 1.6rem;
+.app-header nav span#user-info {
     font-weight: bold;
-    margin-bottom: 15px;
-    letter-spacing: 1px;
-    color: #222;
-    text-align: left;
+    font-size: 1.1em;
 }
 
-.report-form input[type="text"],
-.report-form input[type="date"],
-.report-form input[type="time"],
-.report-form input[type="number"],
-.report-form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.report-form button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    border: 0;
-    background: #333;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.report-form button.update {
-    background: #f0ad4e;
-    margin-top: 0;
-}
-
-#cancel-edit {
-    background: #d9534f;
-    margin-top: 0;
-}
-
-.bulk-actions {
-    background: none;
-    padding: 0;
-    margin-bottom: 0;
-    border-radius: 0;
-    text-align: left;
-}
-
-.bulk-actions input[type="date"] {
-    padding: 8px;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-#delete-by-date-btn {
-    background: #d9534f;
+/* Base style for buttons within the header */
+.header-btn {
+    background-color: #0056b3; /* A slightly darker blue than header background */
     color: white;
-    border: 0;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.report-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.report-table th, .report-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.report-table th:first-child, .report-table td:first-child {
-    text-align: center;
-}
-
-.report-table th {
-    background-color: #333;
-    color: white;
-}
-
-.report-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-.date-cell {
-    white-space: nowrap;
-}
-
-#report-footer td {
-    font-weight: bold;
-    text-align: right;
-    padding-right: 20px;
-}
-
-.edit-btn, .delete-btn {
-    cursor: pointer;
-    padding: 5px 10px;
     border: none;
-    border-radius: 3px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s ease;
+}
+
+.header-btn:hover {
+    background-color: #004080; /* Even darker on hover */
+}
+
+/* Specific styling for the Logout button in the header */
+#logout-btn.header-btn {
+    background-color: #dc3545; /* Red for logout */
+}
+
+#logout-btn.header-btn:hover {
+    background-color: #c82333;
+}
+
+/* Specific styling for the Reports page button in the header (on admin.html) */
+#reports-page-btn.header-btn {
+    background-color: #28a745; /* Green for reports page button */
+}
+
+#reports-page-btn.header-btn:hover {
+    background-color: #218838;
+}
+
+/* Login Page Specific Header */
+.login-header {
+    background-color: #333; /* A simpler, dark background for login page */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.login-header h1 {
+    margin: 0;
+    font-size: 2em;
     color: white;
 }
 
-.edit-btn {
-    background-color: #f0ad4e;
+/* --- END NEW HEADER STYLES --- */
+
+/* Admin Section Styling (now used for each management box on admin.html) */
+.admin-section {
+    background-color: #fcfcfc; /* Consistent lighter background for sections */
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.delete-btn {
-    background-color: #d9534f;
+.admin-section h2 {
+    color: #444; /* Darker grey heading */
+    margin-top: 0; /* Remove top margin as it's within a section */
+    margin-bottom: 15px;
+    font-size: 1.6em;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
 }
 
+.admin-section .input-group { /* Renamed from form-group for admin panel input areas */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.admin-section .input-group input,
+.admin-section .input-group select {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95em;
+    box-sizing: border-box;
+}
+
+.admin-section .input-group button {
+    padding: 10px 15px;
+    background-color: #5cb85c; /* Green button for adding/creating */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s ease;
+}
+
+.admin-section .input-group button:hover {
+    background-color: #4cae4c;
+}
+
+.admin-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-section ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #fdfdfd;
+}
+
+.admin-section ul li:last-child {
+    border-bottom: none;
+}
+
+/* Action buttons within lists */
 .action-buttons {
     display: flex;
     gap: 5px;
 }
 
-.table-actions {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.table-actions label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-}
-
-.table-actions input[type="checkbox"] {
-    cursor: pointer;
-}
-
-.report-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-#delete-selected-btn {
-    background-color: #dc3545;
-    color: white;
+.action-buttons button {
+    background: none;
     border: none;
-    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 5px;
     border-radius: 4px;
-    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.action-buttons .edit-btn {
+    color: #007bff;
+}
+.action-buttons .edit-btn:hover {
+    background-color: #e0f0ff;
+    color: #0056b3;
+}
+.action-buttons .delete-btn {
+    color: #dc3545;
+}
+.action-buttons .delete-btn:hover {
+    background-color: #ffe0e0;
+    color: #c82333;
 }
 
-#delete-selected-btn:hover {
-    background-color: #c82333;
-}
-
-.form-grid .form-row {
-    display: flex;
-    gap: 22px;
-    margin-bottom: 18px;
-}
-
-.form-grid .form-row input,
-.form-grid .form-row select,
-.form-grid .form-row textarea,
-.controls .filter-container input,
-.controls .filter-container select {
-    flex: 1 1 0;
-    min-width: 0;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #fafbfc;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-grid .form-row input:focus,
-.form-grid .form-row select:focus,
-.form-grid .form-row textarea:focus,
-.controls .filter-container input:focus,
-.controls .filter-container select:focus {
-    border-color: #5cb85c;
-    box-shadow: 0 0 0 2px #e6f9ea;
-    outline: none;
-}
-
-.form-grid .form-row textarea {
-    resize: vertical;
-    min-height: 100px;
-    max-height: 160px;
-}
-
-.form-grid .form-row:last-child {
-    justify-content: flex-start;
-    gap: 14px;
-}
-
-.form-grid button[type="submit"] {
-    background: #5cb85c;
-    color: #fff;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-    width: auto;
-}
-
-.form-grid button[type="submit"]:hover {
-    background: #449d44;
-}
-
-.form-grid #cancel-edit {
-    background: #d9534f;
-    color: #fff;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    width: auto;
-    font-weight: bold;
-}
-
-.form-grid #cancel-edit:hover {
-    background: #b52b27;
-}
-
-@media (max-width: 700px) {
-    .form-grid .form-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .report-form {
-        padding: 18px 8px 14px 8px;
-    }
-}
-
-input::placeholder,
-textarea::placeholder {
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
+/* Form Styles (for Report page) */
 .top-layout-container {
     display: flex;
-    gap: 24px;
-    align-items: stretch;
-    margin-bottom: 28px;
+    gap: 30px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
-.top-layout-container .controls {
-    flex: 0 0 calc(30% - 12px);
+.report-form, .controls {
+    background-color: #fcfcfc;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 300px;
+}
+
+.report-form {
+    flex: 2;
+}
+
+.form-grid {
     display: flex;
     flex-direction: column;
-    gap: 0px;
-    padding: 24px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.04);
+    gap: 15px;
 }
 
-.top-layout-container .filter-container {
+.form-row {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-.top-layout-container .filter-container button,
-.top-layout-container .controls > button {
-    width: 100%;
-    padding: 12px;
-    font-weight: bold;
-    border-radius: 6px;
+.form-row input,
+.form-row select,
+.form-row textarea {
+    flex: 1;
+    padding: 10px 12px;
     border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    min-width: 120px;
+}
+
+.form-row textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.report-form button[type="submit"],
+.report-form button#cancel-edit {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.report-form button[type="submit"] {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.report-form button[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+.report-form button#cancel-edit {
+    background-color: #f0ad4e;
+    color: white;
+}
+
+.report-form button#cancel-edit:hover {
+    background-color: #ec971f;
+}
+
+/* Filter and Controls Section */
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-container select,
+.filter-container input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95em;
+    box-sizing: border-box;
+}
+
+.controls button {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
 }
 
 #filter-btn {
-    background: #5cb85c;
+    background-color: #0275d8;
     color: white;
-    border-color: #5cb85c;
 }
 
 #filter-btn:hover {
-    background: #449d44;
+    background-color: #025aa5;
 }
 
 #export-btn {
-    background: #333;
+    background-color: #5bc0de;
     color: white;
-    border-color: #333;
 }
 
 #export-btn:hover {
-    background: #000;
+    background-color: #31b0d5;
 }
 
-.top-layout-container .report-form {
-    flex: 0 0 calc(70% - 12px);
+/* Table Styles */
+.report-table {
+    overflow-x: auto;
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 1200px) {
+.table-actions {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* This is the delete selected button, its display will be toggled by JS */
+.table-actions #delete-selected-btn {
+    padding: 8px 15px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    margin-left: 10px;
+}
+
+.table-actions #delete-selected-btn:hover {
+    background-color: #c82333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th,
+table td {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #e9e9e9;
+    font-weight: bold;
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+table tfoot td {
+    background-color: #e9e9e9;
+    font-weight: bold;
+    border-top: 2px solid #ccc;
+    padding: 12px;
+}
+
+/* Checkbox specific styles */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+/* Messages */
+.error-message {
+    color: #d9534f;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.success-message {
+    color: #5cb85c;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
     .top-layout-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .report-form, .controls {
+        min-width: unset;
+        width: 100%;
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .admin-section .input-group {
         flex-direction: column;
         align-items: stretch;
     }
-    .top-layout-container .report-form,
-    .top-layout-container .controls {
-        flex: 1 1 100%;
+    .admin-section .input-group input,
+    .admin-section .input-group select,
+    .admin-section .input-group button {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .app-header .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .app-header nav {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .header-btn {
+        width: 100%; /* Make header buttons full width on small screens */
     }
 }
 
-.top-layout-container .filter-container select,
-.top-layout-container .filter-container input {
-    width: 100% !important;
-    min-width: 0 !important;
-    flex: none !important;
-    box-sizing: border-box;
+
+/* Form group for inputs and button (This section seems to be admin-specific and overlaps with .admin-section .input-group - review for potential merge or clarification) */
+/* Retaining this based on your previous request to keep old CSS, but it's important to understand it applies if elements inside .admin-panel are also inside a .form-group */
+.admin-panel .form-group { /* This class exists from previous updates */
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    gap: 10px; /* Space between form elements */
+    align-items: flex-end; /* Aligns items to the bottom */
+}
+
+.admin-panel .form-group input[type="text"],
+.admin-panel .form-group input[type="password"],
+.admin-panel .form-group select {
+    flex: 1; /* Allows inputs to grow and shrink */
+    min-width: 200px; /* Minimum width for inputs */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.admin-panel .form-group button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-panel .form-group button:hover {
+    background-color: #0056b3;
+}
+
+/* List styling for existing users/clients */
+.admin-panel ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.admin-panel ul li {
+    background-color: #fff;
+    border: 1px solid #eee;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-panel ul li span {
+    flex-grow: 1; /* Allows the text content to take available space */
+    margin-right: 10px;
+}
+
+.admin-panel ul li .action-buttons {
+    display: flex;
+    gap: 5px; /* Space between edit/delete buttons */
+}
+
+.admin-panel ul li .action-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em; /* Adjust icon size */
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.admin-panel ul li .action-buttons .edit-btn {
+    color: #28a745; /* Green for edit */
+}
+
+.admin-panel ul li .action-buttons .edit-btn:hover {
+    background-color: #e6ffe6;
+}
+
+.admin-panel ul li .action-buttons .delete-btn {
+    color: #dc3545; /* Red for delete */
+}
+
+.admin-panel ul li .action-buttons .delete-btn:hover {
+    background-color: #ffe6e6;
+}
+
+/* Messages for success/error */
+.admin-panel .message {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.admin-panel .message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.admin-panel .message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Fix input inside flex containers that breaks datalist */
+input[list] {
+    position: relative;
+    z-index: 10;
+}
+
+/* Optional: Improve suggestion display (if any browser uses shadow DOM styles) */
+datalist option {
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+}
+
+/* Ensure parent doesn't block native dropdown (if applied) */
+.form-row {
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
 }
