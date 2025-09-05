@@ -307,73 +307,106 @@ app.delete('/clients/:id', protect, authorize('admin'), async (req, res) => {
 
 /* ----------------- REPORT ROUTES (Updated for employeeUsername & Dependent Filters) ----------------- */
 
-// GET /reports: Get all reports (Admin sees all, Employee sees only their own)
 app.get('/reports', protect, async (req, res) => {
-    try {
-        let matchQuery = {}; // Initialize an empty match query
+  try {
+    const { clientName, projectName } = req.query;
 
-        if (req.user.role === 'employee') {
-            // Employee sees reports where employeeUsername matches their AuthUser.username
-            matchQuery.employeeUsername = req.user.username;
-        }
-        // Admins will have an empty matchQuery, so all reports will be considered for them.
-
-        const reports = await Report.aggregate([
-        // Stage 1: Filter reports based on user role (admin sees all, employee sees their own)
-        {
-            $match: matchQuery
-        },
-        // Stage 2: Perform a left outer join with the 'clients' collection
-        {
-            $lookup: {
-                from: 'clients', // Make sure 'clients' is the actual name of your collection
-                localField: 'clientName', // Field from the 'reports' collection (the slug)
-                foreignField: 'slug',     // Field from the 'clients' collection to match on
-                as: 'clientDetails'       // Name of the new array field added to each report document
-            }
-        },
-        // Stage 3: Deconstruct the 'clientDetails' array
-        // Use preserveNullAndEmptyArrays: true to include reports even if no matching client is found
-        {
-            $unwind: {
-                path: '$clientDetails',
-                preserveNullAndEmptyArrays: true
-            }
-        },
-        // Stage 4: Project (select) the fields you want in the final output
-        {
-            $project: {
-                _id: 1,
-                date: {
-                    $dateToString: {
-                        format: "%m/%d/%Y", // US format: MM/DD/YYYY
-                        date: { $toDate: "$date" }  // Ensures it's treated as a Date object
-                    }
-                },
-                employeeName: 1,
-                // Use the 'name' (label) from clientDetails, or fall back to original clientName (slug)
-                displayClientName: { $ifNull: ['$clientDetails.name', '$clientName'] },
-                // Get the original clientName (slug) from the report document
-                clientName: '$clientName', // <--- CORRECTED: Use just '$clientName'
-
-                projectName: 1,
-                taskDescription: 1,
-                hours: 1,
-                notes: 1,
-                employeeUsername: 1
-                // Include any other fields from your Report model you need on the frontend
-            }
-        },
-        // Stage 5: (Optional) Add any sorting if you want the reports ordered
-        {
-            $sort: { date: -1 } // Example: Sort by date descending
-        }
-    ]);
-        res.json(reports);
-    } catch (error) {
-        console.error('Error fetching reports with client labels:', error);
-        res.status(500).json({ message: 'Server error fetching reports.' });
+    // --- normalize employees param to array ---
+    let employees = req.query.employees;
+    if (typeof employees === 'string') {
+      employees = employees.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (Array.isArray(employees)) {
+      employees = employees.map(s => (s || '').trim()).filter(Boolean);
+    } else {
+      employees = [];
     }
+
+    // --- base match ---
+    const matchQuery = {};
+    if (clientName) matchQuery.clientName = clientName;
+    if (projectName) matchQuery.projectName = projectName;
+
+    // --- employee role restriction ---
+    if (req.user.role === 'employee') {
+      const self = req.user.username;
+      // intersect requested employees with self (or force self if none provided)
+      if (employees.length > 0) {
+        if (!employees.includes(self)) {
+          // no overlap -> no results
+          return res.json([]);
+        }
+        employees = [self];
+      } else {
+        employees = [self];
+      }
+    }
+
+    // --- apply multi-employee filter if provided (or forced above) ---
+    if (employees.length > 0) {
+      matchQuery.employeeUsername = { $in: employees };
+    }
+
+    // --- aggregation ---
+    const reports = await Report.aggregate([
+      // Stage 0: match by role/filters FIRST for performance
+      { $match: matchQuery },
+
+      // Stage 1: compute a real Date for sorting/formatting (assuming `date` is string/number)
+      { $addFields: { _dateObj: { $toDate: "$date" } } },
+
+      // Stage 2: left join clients (clientName=slug -> clients.slug)
+      {
+        $lookup: {
+          from: 'clients',
+          localField: 'clientName',
+          foreignField: 'slug',
+          as: 'clientDetails'
+        }
+      },
+
+      // Stage 3: unwind, keep non-matching clients
+      {
+        $unwind: {
+          path: '$clientDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+
+      // Stage 4: shape output
+      {
+        $project: {
+          _id: 1,
+          date: {
+            $dateToString: {
+              format: "%m/%d/%Y",
+              date: "$_dateObj"
+            }
+          },
+          employeeName: 1,
+          displayClientName: { $ifNull: ['$clientDetails.name', '$clientName'] },
+          clientName: '$clientName',
+          projectName: 1,
+          taskDescription: 1,
+          hours: 1,
+          notes: 1,
+          employeeUsername: 1,
+          // keep for sort only (not returned)
+          _dateObj: 1
+        }
+      },
+
+      // Stage 5: sort by real date desc
+      { $sort: { _dateObj: -1, _id: -1 } },
+
+      // Stage 6: drop helper
+      { $project: { _dateObj: 0 } }
+    ]);
+
+    res.json(reports);
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({ message: 'Server error fetching reports.' });
+  }
 });
 
 // POST /reports: Add a new report
